@@ -1,6 +1,7 @@
 <template>
   <!-- contain my body structure -->
   <div class="container-fuid" style="padding: 40px">
+    <!-- input search -->
     <div class="row">
       <div class="col-md-12">
         <div class="input-group flex-nowrap">
@@ -8,7 +9,7 @@
           <input
             type="text"
             @change="getMatch($event)"
-            v-model="query"
+            :value="query"
             class="form-control"
             placeholder="Enter the name of the book"
             aria-label="Username"
@@ -45,6 +46,25 @@
         </table>
       </div>
     </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="input-group flex-nowrap">
+          <span class="input-group-text" id="addon-wrapping"
+            >number of results</span
+          >
+          <input
+            type="number"
+            max="10"
+            @change="getAmount($event)"
+            v-model="amount"
+            class="form-control"
+            placeholder="Enter the name of the book"
+            aria-label="Username"
+            aria-describedby="addon-wrapping"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -62,12 +82,14 @@ export default {
       price: [],
       url: [],
       query: "",
+      amount: 10,
       standardValue: true,
     };
   },
   mounted() {
     this.$nextTick(function () {
       this.getMatch("JavaScript");
+      this.standardValue = false;
     });
   },
   methods: {
@@ -77,18 +99,21 @@ export default {
       this.isbn13 = [];
       this.price = [];
       this.url = [];
-      this.standardValue === false
-        ? (this.query = e.target.value)
-        : (this.query = "Javascript");
-      console.log(this.query);
+      console.log(e);
+      if (typeof e === "string") this.query = e;
+      if (this.standardValue === false && typeof e === "object")
+        this.query = e.target.value;
+      //comunicación con la api
       const url = `https://api.itbook.store/1.0/search/${this.query}`;
       axios
         .get(url)
         .then((response) => {
           const elementList = response.data.books;
+          console.log(this.amount);
+          console.log(this.query);
 
           elementList.map((e, i) => {
-            if (i <= 10) {
+            if (i < this.amount) {
               this.titles.push(e.title);
               e.subtitle === ""
                 ? this.subtitle.push("N/A")
@@ -109,6 +134,9 @@ export default {
         .catch((e) => {
           console.log(e);
         });
+    },
+    getAmount() {
+      this.getMatch(this.query);
     },
   },
 };
