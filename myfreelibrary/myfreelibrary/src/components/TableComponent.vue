@@ -26,6 +26,7 @@ import "animate.css";
             placeholder="Enter the name of the book"
             aria-label="Username"
             aria-describedby="addon-wrapping"
+            required
           />
         </div>
       </div>
@@ -91,6 +92,7 @@ import "animate.css";
       </div>
     </div>
     <button
+      v-if="subtitle != ''"
       type="button"
       class="btn btn-primary"
       style="margin-bottom: 30px"
@@ -154,9 +156,10 @@ export default {
       if (typeof e === "string") this.query = e;
 
       //si es un objeto capturado desde el @change bus el valor y lo guarda
-      if (this.standardValue === false && typeof e === "object")
-        this.query = e.target.value;
-
+      if (this.standardValue === false && typeof e === "object") {
+        if (e.target.value == "") this.query = "JavaScript";
+        if (e.target.value != "") this.query = e.target.value;
+      }
       //comunicación con la api
       const url = `https://api.itbook.store/1.0/search/${this.query}`;
       //axios es una libreria para hacer las peticiones
